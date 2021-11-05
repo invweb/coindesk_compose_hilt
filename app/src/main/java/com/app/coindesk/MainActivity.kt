@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
 
         coinsList.observe(this, {
             setContent {
+
                 CoindeskTheme {
                     // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
@@ -47,29 +49,21 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ShowCoins(coins: List<Coins>) {
     Scaffold(modifier = Modifier.padding(0.dp), content = {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TableComposable(coins)
-        }
+        TableComposable(coins)
     })
 }
 
 @Composable
 fun TableComposable(coins: List<Coins>) {
     Scaffold(modifier = Modifier.padding(0.dp), content = {
-        LazyColumn {
-            // Add a single item
-            item {
-                Text(text = "First item")
-            }
-
+        LazyColumn() {
             coins.forEach { coin ->
                 item {
                     Text(modifier = Modifier.padding(5.dp), text = coin.chartName)
-                    Text(modifier = Modifier.padding(5.dp), text = coin.bpi.eur.rate)
+                    Text(modifier = Modifier.padding(5.dp), text = "eur: " + coin.bpi.eur.rate)
+                    Text(modifier = Modifier.padding(5.dp), text = "gbp: " + coin.bpi.gbp.rate)
+                    Text(modifier = Modifier.padding(5.dp), text = "usd: " + coin.bpi.usd.rate)
+                    Text(modifier = Modifier.padding(5.dp), text = "updatedISO: " + coin.time.updatedISO)
                 }
                 item {
                     Divider(
@@ -79,47 +73,5 @@ fun TableComposable(coins: List<Coins>) {
                 }
             }
         }
-
-//        Column(
-//            modifier = Modifier.fillMaxSize(),
-//            verticalArrangement = Arrangement.Top,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            coins.forEach { coin ->
-//                Row(
-//                    //modifier = Modifier
-//                        //.padding(8.dp, 10.dp, 0.dp, 10.dp)
-//                ) {
-//                    coin.bpi.usd.let {
-//                        Column {
-//                            Text(it.symbol)
-//                            Text(it.code)
-//                            Text(it.description)
-//                            Text(it.rate)
-//                        }
-//                    }
-//                }
-//
-//                Row(
-//                    modifier = Modifier
-//                    .padding(8.dp, 10.dp, 0.dp, 10.dp)
-//                ) {
-//                    coin.bpi.eur.let {
-//                        Column {
-//                            Text(it.symbol)
-//                            Text(it.code)
-//                            Text(it.description)
-//                            Text(it.rate)
-//                        }
-//                    }
-//                }
-//                Row {
-//                    Divider(
-//                        color = Color.Black,
-//                        thickness = 1.dp
-//                    )
-//                }
-//            }
-//        }
     })
 }
