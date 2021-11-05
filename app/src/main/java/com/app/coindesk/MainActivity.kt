@@ -5,9 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +34,9 @@ class MainActivity : ComponentActivity() {
                     // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
                         val listOfCoins = it
-                        ShowCoins(
-                            listOfCoins
-                        )
+                            ShowCoins(
+                                listOfCoins
+                            )
                     }
                 }
             }
@@ -60,26 +60,18 @@ fun ShowCoins(coins: List<Coins>) {
 @Composable
 fun TableComposable(coins: List<Coins>) {
     Scaffold(modifier = Modifier.padding(0.dp), content = {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        LazyColumn {
+            // Add a single item
+            item {
+                Text(text = "First item")
+            }
+
             coins.forEach { coin ->
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp, 10.dp, 0.dp, 10.dp)
-                ) {
-                    coin.bpi.usd.let {
-                        Column {
-                            Text(it.symbol)
-                            Text(it.code)
-                            Text(it.description)
-                            Text(it.rate)
-                        }
-                    }
+                item {
+                    Text(modifier = Modifier.padding(5.dp), text = coin.chartName)
+                    Text(modifier = Modifier.padding(5.dp), text = coin.bpi.eur.rate)
                 }
-                Row {
+                item {
                     Divider(
                         color = Color.Black,
                         thickness = 1.dp
@@ -87,5 +79,47 @@ fun TableComposable(coins: List<Coins>) {
                 }
             }
         }
+
+//        Column(
+//            modifier = Modifier.fillMaxSize(),
+//            verticalArrangement = Arrangement.Top,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            coins.forEach { coin ->
+//                Row(
+//                    //modifier = Modifier
+//                        //.padding(8.dp, 10.dp, 0.dp, 10.dp)
+//                ) {
+//                    coin.bpi.usd.let {
+//                        Column {
+//                            Text(it.symbol)
+//                            Text(it.code)
+//                            Text(it.description)
+//                            Text(it.rate)
+//                        }
+//                    }
+//                }
+//
+//                Row(
+//                    modifier = Modifier
+//                    .padding(8.dp, 10.dp, 0.dp, 10.dp)
+//                ) {
+//                    coin.bpi.eur.let {
+//                        Column {
+//                            Text(it.symbol)
+//                            Text(it.code)
+//                            Text(it.description)
+//                            Text(it.rate)
+//                        }
+//                    }
+//                }
+//                Row {
+//                    Divider(
+//                        color = Color.Black,
+//                        thickness = 1.dp
+//                    )
+//                }
+//            }
+//        }
     })
 }
