@@ -4,17 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import com.app.coindesk.application.DeskApplication
 import com.app.coindesk.entity.Coins
 import com.app.coindesk.ui.theme.CoindeskTheme
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.runtime.livedata.observeAsState
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -25,15 +27,15 @@ class MainActivity : ComponentActivity() {
 
         val coinsList: LiveData<List<Coins>> =
             viewModel.observeDataIdDB(application as DeskApplication)
+
         coinsList.observe(this, {
             setContent {
                 CoindeskTheme {
                     // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
-                        Greeting(
-                            this,
-                            "Android" + it.size,
-                            coinsList
+                        val listOfCoins = it
+                        ShowCoins(
+                            listOfCoins
                         )
                     }
                 }
@@ -43,8 +45,47 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name1: MainActivity, name: String, coinsList: LiveData<List<Coins>>) {
-    Text(text = "Hello $name!")
-    val launches: List<Coins?> by coinsList.observeAsState(listOf())
+fun ShowCoins(coins: List<Coins>) {
+    Scaffold(modifier = Modifier.padding(0.dp), content = {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TableComposable(coins)
+        }
+    })
+}
 
+@Composable
+fun TableComposable(coins: List<Coins>) {
+    Scaffold(modifier = Modifier.padding(0.dp), content = {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            coins.forEach { coin ->
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp, 10.dp, 0.dp, 10.dp)
+                ) {
+                    coin.bpi.usd.let {
+                        Column {
+                            Text(it.symbol)
+                            Text(it.code)
+                            Text(it.description)
+                            Text(it.rate)
+                        }
+                    }
+                }
+                Row {
+                    Divider(
+                        color = Color.Black,
+                        thickness = 1.dp
+                    )
+                }
+            }
+        }
+    })
 }
