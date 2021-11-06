@@ -9,15 +9,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.app.coindesk.application.DeskApplication
 import com.app.coindesk.entity.Coins
 import com.app.coindesk.ui.theme.CoindeskTheme
 import dagger.hilt.android.AndroidEntryPoint
+
+private var rootCoins: Coins? = null
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -31,14 +37,27 @@ class MainActivity : ComponentActivity() {
 
         coinsList.observe(this, {
             setContent {
-
+                val navController = rememberNavController()
                 CoindeskTheme {
                     // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
                         val listOfCoins = it
-                            ShowCoins(
-                                listOfCoins
-                            )
+
+                        NavHost(
+                            navController = navController,
+                            startDestination = "listOfCoins"
+                        ) {
+                            composable("listOfCoins") {
+                                ShowCoins(
+                                    navController,
+                                    listOfCoins
+                                )
+                            }
+                            composable("coinInfo") {
+                                ShowCoinInfoComposable(navController)
+                            }
+                        }
+
                     }
                 }
             }
@@ -47,31 +66,104 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ShowCoins(coins: List<Coins>) {
-    Scaffold(modifier = Modifier.padding(0.dp), content = {
-        TableComposable(coins)
+private fun ShowCoinInfoComposable(navController: NavHostController) {
+    Scaffold(modifier = Modifier.padding(8.dp), content = {
+        Column(modifier = Modifier.padding(0.dp)) {
+            Row {
+                rootCoins?.chartName?.let { it1 ->
+                    Text(
+                        modifier = Modifier.padding(5.dp),
+                        text = it1
+                    )
+                }
+            }
+            Row {
+                Text(
+                    modifier = Modifier.padding(5.dp),
+                    text = (rootCoins?.bpi?.eur?.code)
+                        + " : "
+                        + rootCoins?.bpi?.eur?.rate
+                )
+            }
+            Row {
+                Text(
+                    modifier = Modifier.padding(5.dp),
+                    text = rootCoins?.bpi?.gbp?.code
+                        + " : "
+                        + rootCoins?.bpi?.gbp?.rate
+                )
+            }
+            Row {
+                Text(
+                    modifier = Modifier.padding(5.dp),
+                    text = rootCoins?.bpi?.usd?.code
+                        + " : "
+                        + rootCoins?.bpi?.usd?.rate
+                )
+            }
+        }
     })
 }
 
 @Composable
-fun TableComposable(coins: List<Coins>) {
+fun ShowCoins(navController: NavHostController, coins: List<Coins>) {
     Scaffold(modifier = Modifier.padding(0.dp), content = {
-        LazyColumn() {
-            coins.forEach { coin ->
-                item {
-                    Text(modifier = Modifier.padding(5.dp), text = coin.chartName)
-                    Text(modifier = Modifier.padding(5.dp), text = "eur: " + coin.bpi.eur.rate)
-                    Text(modifier = Modifier.padding(5.dp), text = "gbp: " + coin.bpi.gbp.rate)
-                    Text(modifier = Modifier.padding(5.dp), text = "usd: " + coin.bpi.usd.rate)
-                    Text(modifier = Modifier.padding(5.dp), text = "updatedISO: " + coin.time.updatedISO)
+        TableComposable(navController, coins)
+    })
+}
+
+@Composable
+fun TableComposable(navController: NavHostController, coins: List<Coins>) {
+    Scaffold(modifier = Modifier.padding(0.dp), content = {
+        LazyColumn(
+            modifier = Modifier
+                .padding(0.dp, 0.dp, 0.dp, 0.dp)
+        ) {
+            items(items = coins, itemContent = { coin ->
+                Column(modifier = Modifier.clickable(
+                    onClick = {
+                        rootCoins = coin
+                        navController.navigate("coinInfo")
+                    }
+                )) {
+                    Row {
+                        Text(
+                            modifier = Modifier.padding(5.dp),
+                            text = coin.chartName
+                        )
+                    }
+                    Row {
+                        Text(
+                            modifier = Modifier.padding(5.dp),
+                            text = coin.bpi.eur.code
+                                + " : "
+                                + coin.bpi.eur.rate
+                        )
+                    }
+                    Row {
+                        Text(
+                            modifier = Modifier.padding(5.dp),
+                            text = coin.bpi.gbp.code
+                                + " : "
+                                + coin.bpi.gbp.rate
+                        )
+                    }
+                    Row {
+                        Text(
+                            modifier = Modifier.padding(5.dp),
+                            text = coin.bpi.usd.code
+                                + " : "
+                                + coin.bpi.usd.rate
+                        )
+                    }
+                    Row {
+                        Divider(
+                            color = Color.Black,
+                            thickness = 1.dp
+                        )
+                    }
                 }
-                item {
-                    Divider(
-                        color = Color.Black,
-                        thickness = 1.dp
-                    )
-                }
-            }
+            })
         }
     })
 }
