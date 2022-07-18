@@ -1,6 +1,5 @@
 package com.app.coindesk
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,7 +29,6 @@ private var rootCoins: Coins? = null
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private var coinsFlag: Boolean = false
     private val viewModel: MainViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +37,7 @@ class MainActivity : ComponentActivity() {
         val coinsList: LiveData<List<Coins>> =
             viewModel.observeDataIdDB(application as DeskApplication)
 
-        coinsList.observe(this, {
+        coinsList.observe(this) {
             setContent {
                 val navController = rememberNavController()
                 CoindeskTheme {
@@ -65,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        })
+        }
     }
 
     @Composable

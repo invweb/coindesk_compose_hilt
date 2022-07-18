@@ -12,7 +12,7 @@ interface CoinsDao {
     fun getCoins(): LiveData<List<Coins>>
 
     @Insert
-    fun insertCoins(launchListList: Coins): Long
+    fun insertCoins(coinsListList: Coins): Long
 
     @Query("DELETE FROM coins")
     fun truncateCoins()

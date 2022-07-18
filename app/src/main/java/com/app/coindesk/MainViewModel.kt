@@ -19,8 +19,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val jsonPlaceHolderApi: JsonPlaceHolderApi) :
-    ViewModel(), Callback<Coins> {
+class MainViewModel @Inject constructor(
+        private val jsonPlaceHolderApi: JsonPlaceHolderApi,
+        private val appDatabase: AppDatabase
+    ) : ViewModel(), Callback<Coins> {
     private lateinit var app: Application
 
     fun saveCoinsToDB(
@@ -30,25 +32,27 @@ class MainViewModel @Inject constructor(private val jsonPlaceHolderApi: JsonPlac
         app = activity.application
     }
 
+    fun observeDataIdDB(deskApplication: DeskApplication): LiveData<List<Coins>> {
+        return deskApplication.database.getDao().getCoins()
+    }
+
     override fun onResponse(call: Call<Coins>, response: Response<Coins>) {
         val body : Coins? = response.body()
-        val bodyNotNull : Coins = body!!
-        saveDataToDbAsync(bodyNotNull, app)
+        body?.let{
+            val bodyNotNull : Coins = it
+            saveDataToDbAsync(bodyNotNull)
+        }
     }
 
     override fun onFailure(call: Call<Coins>, t: Throwable) {
         Timber.d("MainViewModel Callback<Coins> onFailure")
     }
 
-    private fun saveDataToDbAsync(coins: Coins, app: Application) {
+    private fun saveDataToDbAsync(coins: Coins) {
         viewModelScope.launch(Dispatchers.IO) {
             run {
-                AppDatabase.getInstance(app)!!.getDao().insertCoins(coins)
+                appDatabase.getDao().insertCoins(coins)
             }
         }
-    }
-
-    fun observeDataIdDB(deskApplication: DeskApplication): LiveData<List<Coins>> {
-        return deskApplication.database.getDao().getCoins()
     }
 }
